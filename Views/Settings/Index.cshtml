@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="mb-3">
+    <h2 class="mb-0">Settings</h2>
+    <small class="text-muted">Application information</small>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Application</h5>
+            <table class="table table-sm mb-0">
+                <tr><td>Name</td><td>Order Management System</td></tr>
+                <tr><td>Currency</td><td>EGP - Egyptian Pound</td></tr>
+                <tr><td>Framework</td><td>@ViewBag.Framework</td></tr>
+                <tr><td>Stack</td><td>ASP.NET Core MVC, EF Core, SQL Server</td></tr>
+            </table>
+        </div></div>
+    </div>
+    <div class="col-lg-6 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Database</h5>
+            <table class="table table-sm mb-0">
+                <tr><td>Database</td><td>@ViewBag.Database</td></tr>
+                <tr><td>Customers</td><td>@ViewBag.Customers</td></tr>
+                <tr><td>Products</td><td>@ViewBag.Products</td></tr>
+                <tr><td>Orders</td><td>@ViewBag.Orders</td></tr>
+            </table>
+        </div></div>
+    </div>
+</div>

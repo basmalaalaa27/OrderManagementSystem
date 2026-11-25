@@ -1,0 +1,149 @@
+﻿@model OrderManagementSystem.ViewModels.StatsViewModel
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="mb-3">
+    <h2 class="mb-0">Reports</h2>
+    <small class="text-muted">Sales and performance analytics</small>
+</div>
+
+<form method="get" class="d-flex flex-wrap align-items-center mb-3">
+    <label class="me-2 mb-2">From</label>
+    <input type="date" name="from" value="@(Model.From?.ToString("yyyy-MM-dd"))" class="form-control me-3 mb-2" />
+    <label class="me-2 mb-2">To</label>
+    <input type="date" name="to" value="@(Model.To?.ToString("yyyy-MM-dd"))" class="form-control me-3 mb-2" />
+    <button type="submit" class="btn btn-primary me-2 mb-2">Apply</button>
+    <a asp-action="Index" class="btn btn-outline-secondary mb-2">Clear</a>
+</form>
+
+<p class="text-muted">
+    @if (Model.From.HasValue || Model.To.HasValue)
+    {
+        <span>Showing orders from <strong>@(Model.From?.ToString("yyyy-MM-dd") ?? "the beginning")</strong>
+              to <strong>@(Model.To?.ToString("yyyy-MM-dd") ?? "today")</strong></span>
+    }
+    else
+    {
+        <span>Showing all orders (chart: last 6 months)</span>
+    }
+</p>
+
+<div class="row">
+    <div class="col-md-3 mb-3"><div class="card text-white bg-primary"><div class="card-body">
+        <div>Total Revenue</div><h3 class="mb-0">EGP @Model.TotalRevenue.ToString("N2")</h3>
+    </div></div></div>
+    <div class="col-md-3 mb-3"><div class="card text-white bg-info"><div class="card-body">
+        <div>Total Orders</div><h3 class="mb-0">@Model.TotalOrders</h3>
+    </div></div></div>
+    <div class="col-md-3 mb-3"><div class="card text-white bg-success"><div class="card-body">
+        <div>Avg Order Value</div><h3 class="mb-0">EGP @Model.AvgOrderValue.ToString("N2")</h3>
+    </div></div></div>
+    <div class="col-md-3 mb-3"><div class="card text-white bg-dark"><div class="card-body">
+        <div>Total Customers</div><h3 class="mb-0">@Model.TotalCustomers</h3>
+    </div></div></div>
+
+    <div class="col-md-3 mb-3"><div class="card text-dark bg-warning"><div class="card-body">
+        <div>Pending</div><h3 class="mb-0">@Model.PendingOrders</h3>
+    </div></div></div>
+    <div class="col-md-3 mb-3"><div class="card text-white bg-info"><div class="card-body">
+        <div>Shipped</div><h3 class="mb-0">@Model.ShippedOrders</h3>
+    </div></div></div>
+    <div class="col-md-3 mb-3"><div class="card text-white bg-success"><div class="card-body">
+        <div>Delivered</div><h3 class="mb-0">@Model.DeliveredOrders</h3>
+    </div></div></div>
+    <div class="col-md-3 mb-3"><div class="card text-white bg-danger"><div class="card-body">
+        <div>Cancelled</div><h3 class="mb-0">@Model.CancelledOrders</h3>
+    </div></div></div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Monthly Sales Overview</h5>
+            <div style="position:relative;height:300px"><canvas id="salesChart"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-lg-4 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Order Status Distribution</h5>
+            <div style="position:relative;height:300px"><canvas id="statusChart"></canvas></div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Top Products</h5>
+            <table class="table table-sm mb-0">
+                @foreach (var x in Model.TopProducts)
+                {
+                    <tr><td>@x.Label</td><td class="text-end">EGP @x.Value.ToString("N2")</td></tr>
+                }
+                @if (!Model.TopProducts.Any()) { <tr><td class="text-muted">No data.</td></tr> }
+            </table>
+        </div></div>
+    </div>
+    <div class="col-lg-4 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Top Customers</h5>
+            <table class="table table-sm mb-0">
+                @foreach (var x in Model.TopCustomers)
+                {
+                    <tr><td>@x.Label</td><td class="text-end">EGP @x.Value.ToString("N2")</td></tr>
+                }
+                @if (!Model.TopCustomers.Any()) { <tr><td class="text-muted">No data.</td></tr> }
+            </table>
+        </div></div>
+    </div>
+    <div class="col-lg-4 mb-3">
+        <div class="card"><div class="card-body">
+            <h5 class="card-title">Top Categories</h5>
+            <table class="table table-sm mb-0">
+                @foreach (var x in Model.TopCategories)
+                {
+                    <tr><td>@x.Label</td><td class="text-end">EGP @x.Value.ToString("N2")</td></tr>
+                }
+                @if (!Model.TopCategories.Any()) { <tr><td class="text-muted">No data.</td></tr> }
+            </table>
+        </div></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: @Json.Serialize(Model.MonthlySales.Select(x => x.Label)),
+            datasets: [{
+                label: 'Revenue (EGP)',
+                data: @Json.Serialize(Model.MonthlySales.Select(x => x.Value)),
+                borderColor: '#6f42c1',
+                backgroundColor: 'rgba(111,66,193,0.12)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Shipped', 'Delivered', 'Cancelled'],
+            datasets: [{
+                data: @Json.Serialize(new[] { Model.PendingOrders, Model.ShippedOrders, Model.DeliveredOrders, Model.CancelledOrders }),
+                backgroundColor: ['#f7b924', '#16aaff', '#3ac47d', '#d92550']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+</script>

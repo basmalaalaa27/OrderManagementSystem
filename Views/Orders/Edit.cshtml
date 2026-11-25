@@ -1,0 +1,31 @@
+﻿@model OrderManagementSystem.Models.Order
+
+@{
+    ViewData["Title"] = "Edit Order";
+}
+
+<h2>Order #@Model.OrderId</h2>
+<hr />
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <p><strong>Customer:</strong> @Model.Customer.FullName</p>
+        <p><strong>Product:</strong> @Model.Product.ProductName</p>
+    </div>
+    <div class="col-md-6">
+        <p><strong>Quantity:</strong> @Model.Quantity</p>
+        <p><strong>Date:</strong> @Model.OrderDate.ToString("yyyy-MM-dd")</p>
+        <p><strong>Total:</strong> EGP @((Model.Quantity * Model.Product.Price).ToString("N2"))</p>
+    </div>
+</div>
+
+<form asp-action="Edit" asp-route-id="@Model.OrderId" method="post">
+    <div class="mb-3" style="max-width:300px">
+        <label>Status</label>
+        <select name="status" asp-items="(SelectList)ViewBag.Statuses" class="form-select"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Status</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

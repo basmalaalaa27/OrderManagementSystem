@@ -1,0 +1,52 @@
+﻿@model OrderManagementSystem.Models.Customer
+
+@{
+    ViewData["Title"] = "Customer Details";
+    var orders = Model.Orders.OrderByDescending(o => o.OrderDate).ToList();
+    var spending = orders.Where(o => o.Status != "Cancelled").Sum(o => o.Quantity * o.Product.Price);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">@Model.FullName</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.CustomerId" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p><strong>Phone:</strong> @Model.Phone</p>
+        <p><strong>Address:</strong> @Model.Address</p>
+    </div>
+    <div class="col-md-6">
+        <p><strong>Registered:</strong> @Model.RegistrationDate.ToString("yyyy-MM-dd")</p>
+        <p><strong>Total orders:</strong> @orders.Count</p>
+        <p><strong>Total spending:</strong> EGP @spending.ToString("N2") <small class="text-muted">(cancelled orders excluded)</small></p>
+    </div>
+</div>
+
+<h4>Order History</h4>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Order #</th><th>Date</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+    @foreach (var o in orders)
+    {
+        <tr>
+            <td>@o.OrderId</td>
+            <td>@o.OrderDate.ToString("yyyy-MM-dd")</td>
+            <td>@o.Product.ProductName</td>
+            <td>@o.Quantity</td>
+            <td>EGP @((o.Quantity * o.Product.Price).ToString("N2"))</td>
+            <td>@o.Status</td>
+        </tr>
+    }
+    @if (!orders.Any())
+    {
+        <tr><td colspan="6" class="text-center text-muted">This customer has no orders yet.</td></tr>
+    }
+    </tbody>
+</table>

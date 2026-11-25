@@ -1,0 +1,15 @@
+@model OrderManagementSystem.Models.Product
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h2>Edit Product</h2>
+<hr />
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ProductId" />
+    <partial name="_Form" model="Model" />
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>
